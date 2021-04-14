@@ -1,0 +1,161 @@
+%==============
+%一行目に必ず必要
+%文章の形式を定義
+%===============
+\documentclass[uplatex]{jsbook}
+%===============
+%パッケージの定義、必要か不明
+%===============
+%この下4つを加えることで、mathbbが機能した
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+%可換図式用パッケージ
+\usepackage{amscd}
+\usepackage[all]{xy}
+\usepackage{tikz-cd}
+%リンク用パッケージ
+\usepackage[dvipdfmx]{hyperref}
+%複数行コメント
+%\usepackage{comment}
+
+\usepackage{my-default}
+%タイトルデータ
+\title{球面調和関数}
+\author{ari}
+\date{\today}
+
+
+%===============
+%定理環境の設定
+%セクション毎
+%===============
+
+
+\begin{document}
+
+% タイトルを出力
+\maketitle
+% 目次の表示
+\tableofcontents
+
+\section{最近の目標}
+\begin{itemize}
+    \item 数学の応用向けの知識を増加
+    \begin{itemize}
+        \item 球面調和関数とその既約表現を使って$SE(3)$-equivariantな機械学習モデルを作る
+        \item 最適輸送を使ったグラフ等の類似性を調べた研究
+    \end{itemize}
+    \item 知的好奇心のネタ探し.本当は数論的なアルゴリズムとか面白そうだなと思うけど、それもなあという感じ.
+    \item 無気力との戦い.虚しい仕事してると全体的にやる気がなくなる。毎日、生産的に数学をする仕組みが必要.発表がそのモチベーションを一番発揮させやすいかなと思っている.
+\end{itemize}
+
+\part{球面調和関数}
+
+ここでの目標は理論的には$SO(3)$の既約表現が球面調和関数を使って決定づけられることである.
+可能であればリー群、リー環との関係を明示しながら示したい。
+また、それらを用いたいくつかの応用例を調べたい。
+
+最初に調和多項式とLaplacianの定義をもとに調べる.
+
+
+\chapter{Laplacianと調和多項式}
+\section{Laplacianの特徴づけと回転不変な多項式}
+
+\begin{dfn}
+$C^{\infty}(\mathbb{K}^n)$に対し,微分作用素$\Delta:= \sum \frac{\partial^2}{\partial x_j^2}$を\textbf{Laplacian}という
+また,$\mathrm{Ker} \Delta$の元を調和関数という.特に調和関数であって、多項式であるものを\textbf{調和多項式}という
+\end{dfn}
+
+$f \in C^{\infty}(\mathbb{R}^n)$に対して以下の線形作用素を考える
+\begin{align*}
+\tau_{a}f(x) & := f(x-a) & a \in \mathbb{R}^n \\
+T(g)f(x)    & := f(g^{-1}x)  & g \in O(n, \mathbb{R})
+\end{align*}
+
+これらは$\Delta:= \sum \frac{\partial^2}{\partial x_j^2}$と可換である.
+なぜなら,$\tau_a \Delta f(x) = \Delta \tau_a f(x)$は自明.
+$T$については$g$が直交行列であることを使う.
+$g$が直交行列のとき
+$\frac{\partial }{\partial x_i} f(gx) = \sum_j g_{ij} \frac{\partial f}{\partial x_j} (gx)$となり,
+$\frac{\partial^2 }{\partial x_i^2} f(gx) = \sum_k \sum_j  g_{ik} g_{ij} \frac{\partial^2 f}{\partial x_j \partial x_k} (gx)$となる.
+よって$\Delta$を作用させたときの$\frac{\partial^2 f}{\partial x_j \partial x_k} (gx)$の係数は$\sum_i g_{ik}g_{ij}$となる.
+これは直交行列の性質から$j=k$の時1,$j\neq k$の時0となる.
+よって
+\begin{equation*}
+   \Delta T(g) f(x) = \sum_i \frac{\partial^2}{\partial x_i^2}f(g^{-1}x) = T(g) \Delta f(x) 
+\end{equation*}
+になる.
+$\mathcal{P}_k$で$k$次斉次多項式全体を表すとする.
+\begin{prop}
+$p \in \mathcal{P}_k^{SO(n, \mathbb{R})}$とする.このとき次が成り立つ.
+\begin{align*}
+    p(x) =   \begin{cases}
+    b ||x||^k &  k \mbox{が偶数のとき} \\
+    0 & otherwise
+  \end{cases}
+\end{align*}
+\end{prop}
+\begin{proof}
+$f(x) := \frac{p(x)}{||x||^k}(x \in \mathbb{R}^k \setminus 0$)とする.
+すぐわかることとして,$f(gx) = f(x)$, $f(rx) = f(x)(r \in \mathbb{R})$が言える.
+$(x \in \mathbb{R}^k \setminus 0$)に対し,ある$g \in SO(n,\mathbb{R})$が存在し,$g e_n = \frac{x}{||x|| }$ となる.
+よって
+\begin{equation*}
+    f(x) = f(||x|| ge_n)  = f(e_n) = p(e_n) 
+\end{equation*}
+となり,定数関数である.
+よって,$p(x) =  p(e_n) || x||^k$となる.
+しかし$k$が奇数のときこれはp$(e_n)=0$を除き多項式でないためこの結果を得る.
+\end{proof}
+
+
+\begin{thm}
+ $c_{\alpha} \in C^{\infty}(\mathbb{R}^n)$
+ \begin{equation*}
+  D:= \sum_{\alpha}  c_{\alpha}(x)(\partial_x)^{\alpha}
+ \end{equation*}
+ (和は有限和)
+この時$D$が
+\begin{align*}
+\tau_{a} D & = D\tau_{a}  & (a \in \mathbb{R}^n  \\
+T(g)D &  = DT(g)  & (\forall g \in SO(n, \mathbb{R})
+\end{align*}
+をみたすならば,$D$は$\Delta$の多項式である.
+\end{thm}
+\begin{proof}
+1つ目の条件から任意の$f \in C^{\infty}(\mathbb{R})$に対し,
+\begin{align*}
+    \sum c_{\alpha}(x -a) \partial_x^{\alpha}f(x -a ) = \tau_a D f(x) = D \tau_a f(x) = \sum c_{\alpha}(x) \partial_x^{\alpha}f(x -a )
+\end{align*}
+となる.
+実際$f= x^{\alpha}$とし,$x=a$を代入すると上の式から
+\begin{equation*}
+    c_{\alpha}(x -a) = c_{\alpha}(x)
+\end{equation*}
+となる.よって,$c_{\alpha}$は定数関数であることがわかる.
+よって$D = q(\partial_x)$となる多項式$q$が取れる.
+次に,$f_y(x) = e^{y \cdot x}$を取る.
+この置き方から,$q(\partial_x)f_y = q(y) f_y$になる.
+また,
+\begin{equation*}
+T(g) f_y(x) = e^{y^Tg^Tx} =  e^{gy \cdot x} = f_{gy}(x)
+\end{equation*} 
+に注意すると,
+\begin{align*}
+    T(g)D f_y(x) & = T(g) q(y) f_y = q(y) f_{gy}  \\
+    = DT(g) f_y(x) & =q(\partial_x) f_{gy} = q(gy) f_{gy}
+\end{align*}
+となる.よって$q(y) = q(gy)$となるので,
+$q \in \oplus \mathcal{P}_k^{SO(n, \mathbb{R})}$となる.
+よって上の補題から,
+$q(x) =  \sum_m b_m ||x||^{2m}$とかける.
+よって$p(t) = \sum_m b_m t^m$とすると
+$p(\Delta) = q(\partial_x) = D$となる.
+\end{proof}
+
+\begin{thebibliography}{99}
+\bibitem{K}  関数解析(黒田)
+\end{thebibliography}
+\end{document}
